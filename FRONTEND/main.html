@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+    <div class="contentarea">
+    <h1>
+        Using Javascript to capture Photo
+    </h1>
+    <div class="camera">
+        <video id="video">Video stream not available.</video>
+    </div>
+    <div><button id="startbutton">Take photo</button></div>
+    
+    <canvas id="canvas"></canvas>
+    <div class="output">
+        <img id="photo" alt="The screen capture will appear in this box."> 
+    </div>
+</div>
+<script>
+    window.addEventListener('load', startup, false);
+    function startup() {
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    photo = document.getElementById('photo');
+    startbutton = document.getElementById('startbutton');
+    let width = 300; 
+    
+    // access video stream from webcam
+    navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        })
+        // on success, stream it in video tag
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log("An error occurred: " + err);
+        });
+    console.log("yaha");
+    video.addEventListener('canplay', function(ev) {
+        let x = false;
+        if (!x) {
+            height = video.videoHeight / (video.videoWidth / width);
+
+            if (isNaN(height)) {
+                height = width / (4 / 3);
+            }
+
+            video.setAttribute('width', width);
+            video.setAttribute('height', height);
+            canvas.setAttribute('width', width);
+            canvas.setAttribute('height', height);
+            streaming = true;
+        }
+    }, false);
+
+    startbutton.addEventListener('click', function(ev) {
+        takepicture();
+        ev.preventDefault();
+    }, false);
+
+    clearphoto();
+}
+
+function clearphoto() {
+    var context = canvas.getContext('2d');
+    context.fillStyle = "#AAA";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    var data = canvas.toDataURL('image/png');
+    photo.setAttribute('src', data);
+}
+
+function takepicture() {
+    width = 300;
+    height = 300;
+    var context = canvas.getContext('2d');
+    if (width && height) {
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(video, 0, 0, width, height);
+
+        var data = canvas.toDataURL('image/png');
+        data = data.replace('data:image/png;base64,','');
+        //data = data - 'data:image/png;base64,';
+        console.log(data);
+        photo.setAttribute('src', data);
+    } else {
+        clearphoto();
+    }
+}
+</script>
+</body>
+</html>
